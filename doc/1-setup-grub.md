@@ -1,8 +1,15 @@
-## 建立一个使用 GRUB 引导的镜像
+## 自动建立镜像
+
+```bash
+# cd WN8OS
+make pack
+```
+
+## 手工建立一个使用 GRUB 引导的镜像
 
 注：以下大多数操作需要 root 权限，可以在客户机中操作
 
-```
+```bash
 # 下载编译 GRUB
 $ wget http://alpha.gnu.org/gnu/grub/grub-1.98.tar.gz
 $ tar xzf grub-1.98.tar.gz
@@ -10,14 +17,14 @@ $ cd grub-1.98
 $ ./configure --disable-werror  # 新版 GCC 不禁用这个会编译失败
 $ make
 
-# 建立HDD磁盘镜像: 63 sectors per track, 16 heads, 100 cylinders
-$ dd if=/dev/zero of=disk.img count=$((63*16*100))
+# 建立HDD磁盘镜像: 63 sectors per track, 16 heads, 50 cylinders
+$ dd if=/dev/zero of=disk.img count=$((63*16*50))
 
 # 创建分区表
 $ fdisk -u=sectors disk.img
 > x     # 高级模式
 > c     
-> 100   # 100 个柱面
+> 50    # 50 个柱面
 > h
 > 16    # 16 个磁头
 > s
