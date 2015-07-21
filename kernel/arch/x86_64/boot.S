@@ -4,7 +4,7 @@
 
 #define ASM 1
 #include "multiboot.h"
-#include "kernel.h"
+#include "x86_64.h"
 
 /**
  * 低地址区域

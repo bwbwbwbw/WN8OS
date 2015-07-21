@@ -1,1 +1,1 @@
-OBJS:= arch/$(ARCH)/boot.o $(OBJS) arch/$(ARCH)/kernel.o
+OBJS:= arch/$(ARCH)/boot.o $(OBJS)

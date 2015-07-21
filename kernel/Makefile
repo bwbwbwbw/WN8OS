@@ -1,9 +1,12 @@
 ARCH=x86_64
 KERNEL=wn8os.bin
 SDKDIR=../sdk
-INCDIR= -I ./ -I ./arch/$(ARCH)
+INCDIR= -I ./ -I ./core -I ./arch/$(ARCH)
 
 include ./arch/$(ARCH)/config.make
+
+include ./runtime/Makefile
+include ./core/Makefile
 include ./arch/$(ARCH)/Makefile
 
 all: $(KERNEL)
@@ -13,10 +16,10 @@ $(KERNEL): $(OBJS)
 	cp $(KERNEL) $(SDKDIR)/boot/
 
 %.o: %.cc
-	$(SC) $(SCFLAG) -c $< -o  $@
+	$(SC) $(SCFLAG) -c $< -o $@
 
 %.o: %.S
-	$(SC) $(SCFLAG) -c $< -o  $@
+	$(SC) $(SCFLAG) -c $< -o $@
 
 clean:
 	rm -f $(OBJS) $(KERNEL)
