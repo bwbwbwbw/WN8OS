@@ -1,6 +1,8 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
+#ifndef ASM
+
 // 遵循 LP64
 // See more at: http://wiki.osdev.org/X86-64
 
@@ -32,6 +34,8 @@ typedef s64 intptr_t;
 typedef u64 uintptr_t;
 
 typedef u64 size_t;
+
+#endif
 
 #define NULL 0;
 
