@@ -15,7 +15,7 @@ pack:
 	cd $(SDKDIR) && sudo bash makeimage.sh
 
 run:
-	cd $(SDKDIR) && bochs -f bochsrc
+	cd $(SDKDIR) && bochs -f bochsrc -q
 
 clean:
 	make -C $(KERNELDIR) clean

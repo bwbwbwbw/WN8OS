@@ -1,22 +1,30 @@
-## 自动建立镜像
+## 建立 GRUB 引导的 kernal 镜像
+
+### 1. 下载编译 GRUB
+
+无论是自动还是手动建立镜像，都需要先编译一份 GRUB。
+
+```bash
+wget http://alpha.gnu.org/gnu/grub/grub-1.98.tar.gz
+tar xzf grub-1.98.tar.gz
+cd grub-1.98
+./configure --disable-werror  # 新版 GCC 不禁用这个会编译失败
+make
+sudo make install
+```
+
+### 2. 建立镜像
+
+自动建立：
 
 ```bash
 # cd WN8OS
 make pack
 ```
 
-## 手工建立一个使用 GRUB 引导的镜像
-
-注：以下大多数操作需要 root 权限，可以在客户机中操作
+手动建立（以下大多数操作需要 root 权限）：
 
 ```bash
-# 下载编译 GRUB
-$ wget http://alpha.gnu.org/gnu/grub/grub-1.98.tar.gz
-$ tar xzf grub-1.98.tar.gz
-$ cd grub-1.98
-$ ./configure --disable-werror  # 新版 GCC 不禁用这个会编译失败
-$ make
-
 # 建立HDD磁盘镜像: 63 sectors per track, 16 heads, 50 cylinders
 $ dd if=/dev/zero of=disk.img count=$((63*16*50))
 
