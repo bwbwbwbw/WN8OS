@@ -17,5 +17,8 @@ pack:
 run:
 	cd $(SDKDIR) && bochs -f bochsrc -q
 
+qemu:
+	cd $(SDKDIR) && bash qemu.sh
+
 clean:
 	make -C $(KERNELDIR) clean
