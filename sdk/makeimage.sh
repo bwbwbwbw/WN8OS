@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# 建立HDD磁盘镜像: 63 sectors per track, 16 heads, 50 cylinders ~= 55MB
+# 建立HDD磁盘镜像: 63 sectors per track, 16 heads, 50 cylinders ~= 25MB
 # 建立在 /tmp 目录下.. 因为 /vagrant 目录下会因为 vbox 的 bug 而失败 :-(
 echo -e "\033[32mCreating disk image /tmp/disk.img ...\033[0m"
 dd if=/dev/zero of=/tmp/disk.img count=$((63*16*50)) >/dev/null

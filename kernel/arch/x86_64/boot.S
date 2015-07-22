@@ -4,7 +4,7 @@
 
 #define ASM 1
 #include "multiboot.h"
-#include "x86_64.h"
+#include "arch.h"
 
 /**
  * 低地址区域
@@ -209,8 +209,8 @@
 
         call    kernel_main
 
+        /* infinite loop */
     HALT:
-        hlt
         jmp     HALT
 
 /**

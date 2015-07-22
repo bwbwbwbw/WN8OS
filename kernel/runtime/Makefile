@@ -1,1 +1,1 @@
-OBJS:= $(OBJS) runtime/memory.o runtime/string.o runtime/itoa.o
+OBJS:= $(OBJS) runtime/itoa.o runtime/memory.o runtime/string.o

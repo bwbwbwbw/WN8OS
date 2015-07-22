@@ -4,15 +4,15 @@
 #include <stdarg.h>
 #include <runtime/itoa.h>
 #include <runtime/types.h>
-#include <runtime/string.h>
 #include <runtime/memory.h>
+#include <runtime/string.h>
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 
-class Terminal
+namespace Terminal
 {
-public:
+
   enum VGA_COLOR {
     COLOR_BLACK = 0,
     COLOR_BLUE = 1,
@@ -41,14 +41,9 @@ public:
   void putchar(char c);
   void write(const char * data);
   void printf(const char *s, ...);
-
-private:
-  size_t x, y;
-  u8 cur_color;
-  u16 * buffer;
-
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg);
   u16 make_vgaentry(char c, u8 color);
+
 };
 
 #endif

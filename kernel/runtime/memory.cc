@@ -119,4 +119,12 @@ memmove(void *s1, const void *s2, size_t n)
   return memcpy(s1, s2, n);
 }
 
+void * memset(void * s, int c, size_t n)
+{
+    unsigned char* p= (unsigned char *)s;
+    while(n--)
+        *p++ = (unsigned char)c;
+    return s;
+}
+
 }
