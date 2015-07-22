@@ -17,7 +17,7 @@ void interrupt_handler(
   Terminal::printf("interrupt: %x, error_code: %x\n", vector, error_code);
 
   // RPC 中断？
-  if(vector == 63)
+  if (vector == 63)
   {
     /*  interrupt_rpc_t rpc = (interrupt_rpc_t)(void*)registers->rdi;
       rpc(registers, interrupt_stack_frame,
@@ -26,12 +26,18 @@ void interrupt_handler(
   }
 
   // 时钟中断？
-  if(vector == 0) // timer interrupt
+  if (vector == INT_IRQ0) // timer interrupt
   {
-    //scheduler_yield_interrupt(registers, interrupt_stack_frame, true);
+    Terminal::printf("tick\n");
   }
 
-  // send end-of-interrupt (EOI) to PIC
-  //if(vector >= INT_IRQ0 && vector <= INT_IRQ7) pic_eoi_master();
-  //else if(vector >= INT_IRQ8 && vector <= INT_IRQ15) pic_eoi_slave();
+  // 对于 PIC，需要发送 EOI
+  if (vector >= INT_IRQ8 && vector <= INT_IRQ15) {
+    // reset slave
+    IOport::outb(0xA0, 0x20);
+  }
+  if (vector >= INT_IRQ0 && vector <= INT_IRQ15) {
+    // reset master
+    IOport::outb(0x20, 0x20);
+  }
 }

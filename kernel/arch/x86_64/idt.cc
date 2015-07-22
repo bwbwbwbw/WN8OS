@@ -1,7 +1,5 @@
 #include <idt.h>
 
-#include <terminal.h>
-
 extern void * ISR_HANDLERS;
 
 namespace IDT {
@@ -30,6 +28,43 @@ namespace IDT {
     }
 
     flush(&idt_ptr);
+  }
+
+  /**
+   * 这些魔数是啥查手册去 ╮(╯▽╰)╭
+   */
+  void remap_pic()
+  {
+    IOport::outb(0x20, 0x11);
+    IOport::outb(0xA0, 0x11);
+    IOport::outb(0x21, INT_IRQ0);
+    IOport::outb(0xA1, INT_IRQ8);
+    IOport::outb(0x21, 0x04);
+    IOport::outb(0xA1, 0x02);
+    IOport::outb(0x21, 0x01);
+    IOport::outb(0xA1, 0x01);
+  }
+
+  void irq_mask(u16 mask)
+  {
+    IOport::outb(0x21, (u8)(mask & 0xff));
+    IOport::outb(0xA1, (u8)(mask >> 8));
+  }
+
+  /**
+   * 设置时钟中断频率
+   */
+  void init_timer(u32 frequency)
+  {
+    u32 divisor = 1193180 / frequency;
+  
+    IOport::outb(0x43, 0x36);
+  
+    u8 l = (u8)(divisor & 0xFF);
+    u8 h = (u8)((divisor >> 8) & 0xFF);
+  
+    IOport::outb(0x40, l);
+    IOport::outb(0x40, h);
   }
 
   /**

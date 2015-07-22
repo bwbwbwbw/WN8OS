@@ -1,6 +1,7 @@
 #ifndef _IDT_H_
 #define _IDT_H_
 
+#include <interrupt.h>
 #include <isr.h>
 #include <arch.h>
 #include <runtime/types.h>
@@ -26,6 +27,9 @@ namespace IDT {
   extern idt_entry_t idt_entries[256];
   extern idt_ptr_t   idt_ptr;
   void init();
+  void remap_pic();
+  void irq_mask(u16 mask);
+  void init_timer(u32 frequency);
   void set_gate(u8 id, u64 base, u16 select, u8 flags);
   void flush(idt_ptr_t * idt_ptr);
 }
