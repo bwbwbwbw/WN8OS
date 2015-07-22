@@ -80,6 +80,16 @@
 
     START64:
     .code64
+        /* 重置段寄存器 */
+        movw    $DS_KERNEL, %bx
+        movw    %bx, %ds
+        movw    %bx, %es
+        movw    %bx, %fs
+        movw    %bx, %gs
+
+        movw    $0, %bx
+        movw    %bx, %ss
+
         /* 初始化64位的栈 */
         movq    $(STACK_TOP - KERNEL_VMA_BASE), %rsp
 
