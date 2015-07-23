@@ -3,8 +3,9 @@
 
 #include <runtime/types.h>
 
-#include <heap.h>
-#include <page.h>
+#include <mm/sbrk.h>
+#include <mm/heap.h>
+#include <mm/page.h>
 #include <idt.h>
 #include <multiboot.h>
 #include <terminal.h>

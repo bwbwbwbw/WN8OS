@@ -1,0 +1,1 @@
+OBJS:= $(OBJS) mm/sbrk.o mm/malloc.o mm/heap.o mm/page.o

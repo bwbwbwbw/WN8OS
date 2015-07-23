@@ -1,5 +1,7 @@
 #include <kernel.h>
 
+#include <mm/malloc.h>
+
 extern "C"
 void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
 {
@@ -12,10 +14,14 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
     return;
   }
 
+  // 初始化内存管理
+  Terminal::printf("initializing memory management...\n");
   Terminal::printf("mem_lower = %x KB, mem_upper = %x KB\n", mb_info->mem_lower, mb_info->mem_upper);
+  MM::init();
   Heap::init();
   Page::init(mb_info->mem_upper);
 
+  // 设置中断表
   Terminal::printf("Initializing interrupting...\n");
   IDT::init();
   Interrupt::init();
@@ -24,6 +30,7 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
   // We disable timer now
   Interrupt::irq_mask(0x1);
 
+  // 初始化键盘处理程序
   Terminal::printf("Initializing keyboard...\n");
   Keyboard::init();
 

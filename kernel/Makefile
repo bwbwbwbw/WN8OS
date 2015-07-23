@@ -7,6 +7,7 @@ include ./arch/$(ARCH)/config.make
 
 include ./runtime/Makefile
 include ./core/Makefile
+include ./mm/Makefile
 include ./arch/$(ARCH)/Makefile
 
 all: $(KERNEL)
