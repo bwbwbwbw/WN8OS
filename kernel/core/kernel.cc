@@ -34,6 +34,11 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
   Terminal::printf("Initializing keyboard...\n");
   Keyboard::init();
 
+  Terminal::printf("Kernel initialized! Welcome to WN8OS.\n");
+  Interrupt::enable();
+
+  // 在这里开始调用各种构造函数
+  ABI::ctors();
   //u32 *ptr = (u32*)0xA0000000;
   //u32 do_page_fault = *ptr;
   //Interrupt::init_timer(10);

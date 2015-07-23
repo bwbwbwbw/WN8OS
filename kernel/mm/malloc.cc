@@ -521,8 +521,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
   improvement at the expense of carrying around more memory.
 */
 
-#include <mm/config.h>
-#include <terminal.h>
+#include <mm/malloc.h>
 
 /* Version identifier to allow people to support multiple versions */
 #ifndef DLMALLOC_VERSION
@@ -802,7 +801,6 @@ struct mallinfo {
 #endif
 
 #ifdef __cplusplus
-extern "C" {
 #ifndef FORCEINLINE
  #define FORCEINLINE inline
 #endif
@@ -1417,7 +1415,7 @@ DLMALLOC_EXPORT int mspace_mallopt(int, int);
 #endif /* MSPACES */
 
 #ifdef __cplusplus
-}  /* end of extern "C" */
+
 #endif /* __cplusplus */
 
 /*

@@ -36,7 +36,7 @@ typedef s64 ptrdiff_t;
 
 typedef u64 size_t;
 
-#define NULL 0;
+#define NULL 0
 
 #endif
 #endif
