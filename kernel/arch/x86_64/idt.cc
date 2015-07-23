@@ -33,7 +33,7 @@ namespace IDT {
   /**
    * 设置一个中断向量
    */
-  void set_gate(u8 vector, u64 base, u16 select, u8 flags)
+  void set_gate(u8 vector, uintptr_t base, u16 select, u8 flags)
   {
     //Terminal::printf("set idt #%d: %x\n", vector, base);
 
