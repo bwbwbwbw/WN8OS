@@ -1,10 +1,23 @@
 #include <terminal.h>
 
-namespace Terminal {
+namespace Terminal
+{
 
-  size_t x, y;
+  const s16 VGA_WIDTH = 80;
+  const s16 VGA_HEIGHT = 25;
+
+  s16 x, y;
   u8 cur_color;
   u16 * buffer;
+
+  void update_cursor()
+  {
+    s16 position = (y * VGA_WIDTH) + x;
+    IOport::outb(0x3D4, 0x0F);
+    IOport::outb(0x3D5, (u8)(position & 0xFF));
+    IOport::outb(0x3D4, 0x0E);
+    IOport::outb(0x3D5, (u8)((position >> 8) & 0xFF));
+  }
 
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg)
   {
@@ -18,7 +31,7 @@ namespace Terminal {
     return c16 | color16 << 8;
   }
 
-  void clear_line(size_t row)
+  void clear_line(s16 row)
   {
     u16 blank = make_vgaentry(' ', cur_color);
     for (u16 i = row * VGA_WIDTH; i < VGA_HEIGHT * VGA_WIDTH; ++i) {
@@ -29,10 +42,11 @@ namespace Terminal {
 
   void scroll()
   {
-    for (size_t row = 0; row < VGA_HEIGHT - 1; ++row) {
+    for (s16 row = 0; row < VGA_HEIGHT - 1; ++row) {
       memcpy(buffer + row * VGA_WIDTH, buffer + (row + 1) * VGA_WIDTH, VGA_WIDTH * sizeof(u16));
     }
     clear_line(VGA_HEIGHT - 1);
+    update_cursor();
   }
 
   void newline()
@@ -49,20 +63,34 @@ namespace Terminal {
     cur_color = color;
   }
 
-  void putentryat(char c, u8 color, size_t x, size_t y)
+  void putentryat(char c, u8 color, s16 x, s16 y)
   {
-    const size_t index = y * VGA_WIDTH + x;
+    const s16 index = y * VGA_WIDTH + x;
     buffer[index] = make_vgaentry(c, color);
+  }
+
+  // 删除一个字符
+  void deletechar()
+  {
+    x = x - 1;
+    if (x < 0) {
+      x = VGA_WIDTH - 1;
+      y--;
+    }
+    putentryat(' ', cur_color, x, y);
+    update_cursor();
   }
 
   void putchar(char c)
   {
     if (c == '\r') {
       x = 0;
+      update_cursor();
       return;
     }
     if (c == '\n') {
       newline();
+      update_cursor();
       return;
     }
     if (c == '\t') {
@@ -77,12 +105,13 @@ namespace Terminal {
         y = VGA_HEIGHT - 1;
       }
     }
+    update_cursor();
   }
 
   void write(const char * data)
   {
-    size_t datalen = strlen(data);
-    for (size_t i = 0; i < datalen; i++) {
+    s16 datalen = strlen(data);
+    for (s16 i = 0; i < datalen; i++) {
       putchar(data[i]);
     }
   }
@@ -93,9 +122,10 @@ namespace Terminal {
     x = 0;
     cur_color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
     buffer = (u16 *)0xB8000;
-    for (size_t y = 0; y < VGA_HEIGHT; y++) {
+    for (s16 y = 0; y < VGA_HEIGHT; y++) {
       clear_line(y);
     }
+    update_cursor();
   }
 
   void printf(const char *s, ...)
