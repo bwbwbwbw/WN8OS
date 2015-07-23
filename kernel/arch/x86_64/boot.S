@@ -41,7 +41,7 @@
         /* 0x10000C */
         /*
            保存 GRUB 传的参放以后再用
-           EAX = MULTIBOOT_HEADER_MAGIC
+           EAX = MULTIBOOT_BOOTLOADER_MAGIC
            EBX = &(multiboot_structure)
          */
         movl    %ebx, %esi
@@ -151,6 +151,8 @@
      */
     .align 4096
     PML4_BASE:
+        # 映射线性地址低半区最低一块区域和高半区最低一块区域（entry 0x0，entry 0x256）
+        # 注意 PML3, PML2, PML1 已经 4K 对齐了，因此最低 12 位都是 0
         .quad (PML3_BASE + 0x7)
         .rept 255
         .quad 0
@@ -162,6 +164,7 @@
 
     .align 4096
     PML3_BASE:
+        # Page Direcotory Pointer Table 映射最低一项
         .quad (PML2_BASE + 0x7)
         .rept 511
         .quad 0
@@ -169,6 +172,7 @@
 
     .align 4096
     PML2_BASE:
+        # Page Directory Table 映射最低 25 项到各个 PML1 表（50MB）
         .set i, 0
         .rept 25
         .quad (PML1_BASE + i + 0x7)
@@ -180,6 +184,8 @@
 
     .align 4096
     PML1_BASE:
+        # Page Table 每项 4KB，最低 12 位是 flag
+        # 一共 25 个 Page Table，每个 Page Table 包含 512 项（2MB）
         .set i, 0
         .rept 512*25
         .quad (i << 12) | 0x087
@@ -210,7 +216,7 @@
         push    %rax
         popf
 
-        /* 更新 multiboot 指向虚拟地址 */
+        /* 更新 multiboot 结构体指向虚拟地址 */
         add     $(KERNEL_VMA_BASE & 0xffffffff), %rsi
 
         /* 传递 GRUB 参数 */
