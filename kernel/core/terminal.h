@@ -44,6 +44,6 @@ namespace Terminal
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg);
   u16 make_vgaentry(char c, u8 color);
 
-};
+}
 
 #endif

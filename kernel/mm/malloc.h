@@ -26,6 +26,9 @@
 #include <mm/config.h>
 #include <terminal.h>
 
+extern "C"
+{
+
 /*
   malloc(size_t n)
   Returns a pointer to a newly allocated chunk of at least n bytes, or
@@ -82,5 +85,6 @@ void* calloc(size_t, size_t);
 */
 void* realloc(void*, size_t);
 
+}
 
 #endif /* MALLOC_280_H */
