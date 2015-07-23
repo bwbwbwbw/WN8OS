@@ -1,4 +1,4 @@
-megs: 128 
+memory: guest=8192, host=2048
 romimage: file=$BXSHARE/BIOS-bochs-latest
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
 vga: extension=vbe, update_freq=15

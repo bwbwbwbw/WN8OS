@@ -7,11 +7,11 @@
 #include <runtime/memory.h>
 #include <runtime/string.h>
 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
-
 namespace Terminal
 {
+
+  static const size_t VGA_WIDTH = 80;
+  static const size_t VGA_HEIGHT = 25;
 
   enum VGA_COLOR {
     COLOR_BLACK = 0,

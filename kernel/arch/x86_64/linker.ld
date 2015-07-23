@@ -9,14 +9,19 @@ SECTIONS
 {
     /** 链接到低地址 */
     . = kernel_LMA;
+    KERNEL_START = .;
 
     .init :
     {
+        INIT_START = .;
         *(.init)
+        INIT_END = .;
     }
     .init.bss ALIGN(4K) :
     {
+        INIT_BSS_START = .;
         *(.init.bss)
+        INIT_BSS_END = .;
     }
 
     /** 链接到高地址，存放在低地址 */
@@ -24,26 +29,36 @@ SECTIONS
 
     .text ALIGN(4K) : AT(ADDR(.text) - kernel_VMA)
     {
+        TEXT_START = . - kernel_VMA;
         *(.text)
         *(.text.*)
+        TEXT_END = . - kernel_VMA;
     }
 
     .rodata ALIGN(4K) : AT(ADDR(.rodata) - kernel_VMA)
     {
+        RODATA_START = . - kernel_VMA;
         *(.rodata)
         *(.rodata.*)
+        RODATA_END = . - kernel_VMA;
     }
 
     .data ALIGN(4K) : AT(ADDR(.data) - kernel_VMA)
     {
+        DATA_START = . - kernel_VMA;
         *(.data)
         *(.data.*)
+        DATA_END = . - kernel_VMA;
     }
 
     .bss ALIGN(4K) : AT(ADDR(.bss) - kernel_VMA)
     {
+        BSS_START = . - kernel_VMA;
         *(COMMON)
         *(.bss)
         *(.bss.*)
+        BSS_END = . - kernel_VMA;
     }
+
+    KERNEL_END = . - kernel_VMA;
 }
