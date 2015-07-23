@@ -14,6 +14,9 @@ const int IZONENUM = INODE_DIRECT_INDEX_NUM + 2;
 /* 超级块结构，参考MINIX */
 struct SuperBlock {
 
+/*
+    // Linux 0.12的超级块，鉴于比较庞大因此不打算全用
+
     s16  s_ninodes;       // inode数量
     s16  s_nzones;        // 逻辑块数
     s16  s_imap_blocks;   // inode位图占块数
@@ -33,7 +36,17 @@ struct SuperBlock {
     u8             s_lock;      // 锁定标志
     u8             s_rd_only;   // 只读标志
     u8             s_dirt;      // 已被修改（脏）标志
-}
+*/
+
+    u64 inode_capacity;   // 可以容纳多少个inode
+    u64 inode_allocated;  // 已经分配了多少个inode
+    u16 block_size;       // 每个数据块大小
+    u64 block_capacity;   // 可以容纳多少个数据块
+    u64 block_allocated;  // 已经实际分配了多少个数据块
+    u16 magic_value;      // magic value，识别文件系统类型用的
+};
+
+const u64 SUPER_BLOCK_SIZE = sizeof(SuperBlock);
 
 /* inode结构，参考MINIX 1.0 */
 struct INode {
