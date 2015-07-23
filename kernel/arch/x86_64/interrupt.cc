@@ -1,15 +1,47 @@
 #include <interrupt.h>
 #include <terminal.h>
 
-u64 tick = 0;
-
 namespace Interrupt
 {
+
+  const interrupt_vector_t INT_IRQ0  = ((interrupt_vector_t)0x20);
+  const interrupt_vector_t INT_IRQ1  = (INT_IRQ0 + 1);
+  const interrupt_vector_t INT_IRQ2  = (INT_IRQ0 + 2);
+  const interrupt_vector_t INT_IRQ3  = (INT_IRQ0 + 3);
+  const interrupt_vector_t INT_IRQ4  = (INT_IRQ0 + 4);
+  const interrupt_vector_t INT_IRQ5  = (INT_IRQ0 + 5);
+  const interrupt_vector_t INT_IRQ6  = (INT_IRQ0 + 6);
+  const interrupt_vector_t INT_IRQ7  = (INT_IRQ0 + 7);
+  const interrupt_vector_t INT_IRQ8  = ((interrupt_vector_t)0x28);
+  const interrupt_vector_t INT_IRQ9  = (INT_IRQ8 + 1);
+  const interrupt_vector_t INT_IRQ10 = (INT_IRQ8 + 2);
+  const interrupt_vector_t INT_IRQ11 = (INT_IRQ8 + 3);
+  const interrupt_vector_t INT_IRQ12 = (INT_IRQ8 + 4);
+  const interrupt_vector_t INT_IRQ13 = (INT_IRQ8 + 5);
+  const interrupt_vector_t INT_IRQ14 = (INT_IRQ8 + 6);
+  const interrupt_vector_t INT_IRQ15 = (INT_IRQ8 + 7);
+
+  interrupt_handler_t handlers[INTERRUPT_MAX];
+
+  void init()
+  {
+    // 未注册的都为 0
+    for (u32 i = 0; i < INTERRUPT_MAX; ++i) {
+      handlers[i] = 0;
+    }
+  }
+
+  /**
+   * 开启中断
+   */
   void enable()
   {
     __asm__ __volatile__ ("sti");
   }
 
+  /**
+   * 屏蔽中断
+   */
   void disable()
   {
     __asm__ __volatile__ ("cli");
@@ -41,6 +73,9 @@ namespace Interrupt
     IOport::outb(0xA1, 0x01);
   }
 
+  /**
+   * 屏蔽一部分 IRQ
+   */
   void irq_mask(u16 mask)
   {
     IOport::outb(0x21, (u8)(mask & 0xff));
@@ -63,6 +98,14 @@ namespace Interrupt
     IOport::outb(0x40, h);
   }
 
+  /**
+   * 注册中断处理程序，目前只支持一个中断向量注册一个函数
+   */
+  void register_handler(interrupt_vector_t vector, interrupt_handler_t handler)
+  {
+    handlers[vector] = handler;
+  }
+
 }
 
 extern "C"
@@ -73,12 +116,11 @@ void interrupt_handler(
   Interrupt::interrupt_stack_frame_t *interrupt_stack_frame
   )
 {
-  (void)vector;
-  (void)error_code;
-  (void)registers;
-  (void)interrupt_stack_frame;
-
-  //Terminal::printf("interrupt: %x, error_code: %x\n", vector, error_code);
+  // 调用中断处理函数
+  if (Interrupt::handlers[vector] != 0) {
+    Interrupt::interrupt_handler_t handler = Interrupt::handlers[vector];
+    handler(vector, error_code, registers, interrupt_stack_frame);
+  }
 
   // RPC 中断？
   if (vector == 63)
@@ -92,7 +134,8 @@ void interrupt_handler(
   // 时钟中断？
   if (vector == Interrupt::INT_IRQ0) // timer interrupt
   {
-    Terminal::printf("tick: %x\n", ++tick);
+    // Do nothing
+    //Terminal::printf("tick: %x\n", ++tick);
   }
 
   // 对于 PIC，需要发送 EOI

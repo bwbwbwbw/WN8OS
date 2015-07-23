@@ -227,6 +227,7 @@
 
         /* infinite loop */
     HALT:
+        hlt
         jmp     HALT
 
 /**
