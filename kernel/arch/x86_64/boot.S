@@ -111,12 +111,10 @@
     /**
      * GDT
      */
-    .align 4096
     GDT_32:
         .hword GDT_END - GDT_DATA - 1
         .long GDT_DATA
 
-    .align 4096
     GDT_DATA:
         /* null */
         .quad 0x0000000000000000
