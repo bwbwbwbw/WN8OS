@@ -8,19 +8,6 @@ s8 *read_sector(u64 sector_id)
     return nullptr;
 }
 
-class WN8FileSystem {
-public:
-    WN8FileSystem(SuperBlock sb_init)
-    {
-        this->superblock = sb_init;
-    }
-
-private:
-    SuperBlock superblock;
-
-};
-
-
 /* 写扇区 */
 void write_sector(s8 *buffer)
 {
@@ -57,6 +44,23 @@ void read_sector_by_address(u64 address, u8 *dist, u64 size)
     return;
 }
 
+
+/* 文件系统类 */
+
+class WN8FileSystem {
+public:
+    WN8FileSystem(SuperBlock sb_init)
+    {
+        this->superblock = sb_init;
+    }
+
+private:
+    SuperBlock superblock;
+
+};
+
+
+
 /*
 *  初始化文件系统
 */
@@ -64,8 +68,8 @@ s32 initialize_fs() {
     SuperBlock sb;
     u8 sb_buffer[SUPER_BLOCK_SIZE];
 
-    // 将超级块的数据读入缓冲    
-    u8 *superblock_bytes = read_sector_by_address(0, sb_buffer, SUPER_BLOCK_SIZE);  // 暂时假设文件系统的超级块在0号扇区？
+    // 将超级块的数据读入缓冲
+    read_sector_by_address(0, sb_buffer, SUPER_BLOCK_SIZE);  // 暂时假设文件系统的超级块在0号扇区？
     
     // 转换数据类型
     sb = memcpy(&sb, sb_buffer, SUPER_BLOCK_SIZE); 
