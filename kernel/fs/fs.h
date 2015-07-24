@@ -11,17 +11,13 @@ void read_sector_by_address(u64 address, u8 *dist, u64 size);
 
 s32 initialize_fs();
 
-struct WN8FileSystem {
-    SuperBlock  superblock;
-    DirEntry *  root;
-    INode *     inode_hashmap;
-};
-
 WN8FileSystem * fsInstance       = NULL;
 u64 *           fsInodeBitmap    = NULL;
 u64 *           fsBlockBitmap    = NULL;
 u64             fsInodeBitmapLen = 0;
 u64             fsBlockBitmapLen = 0;
+
+
 
 #endif
 

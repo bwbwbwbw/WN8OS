@@ -3,8 +3,6 @@
 #include <runtime/string.h>
 #include <runtime/memory.h>
 
-
-
 /* 读扇区 */
 s8 * read_sector(u64 sector_id)
 {
@@ -72,9 +70,7 @@ s32 initialize_fs() {
     // 转换数据类型
     sb = memcpy(&sb, sb_buffer, SUPER_BLOCK_SIZE);
     // 初始化文件系统超级块
-    fsInstance = (WN8FileSystem *)malloc(sizeof(WN8FileSystem));
-    fsInstance.superblock = sb;
-
+    fsInstance = new WN8FileSystem(sb);
 
     // STEP 2. 读取inode占用情况的bitmap
     // 首先检查超级块中统计整个文件系统的inode数目
@@ -115,7 +111,8 @@ s32 initialize_fs() {
 
 
     // 读取文件系统根目录
-    fsInstance.root = read_dir_entry(ROOT_INODE * SECTOR_SIZE);
+    
+    
     
     return 0;
 }
