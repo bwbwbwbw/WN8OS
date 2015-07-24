@@ -11,16 +11,16 @@ SECTIONS
     . = kernel_LMA;
     KERNEL_START = .;
 
-    .init :
+    .init32 :
     {
         INIT_START = .;
-        *(.init)
+        *(.init32)
         INIT_END = .;
     }
-    .init.bss ALIGN(4K) :
+    .init32.bss ALIGN(4K) :
     {
         INIT_BSS_START = .;
-        *(.init.bss)
+        *(.init32.bss)
         INIT_BSS_END = .;
     }
 
@@ -49,6 +49,21 @@ SECTIONS
         *(.data)
         *(.data.*)
         DATA_END = . - kernel_VMA;
+    }
+
+    .ctors ALIGN(4K) :
+    {
+        __CTOR_LIST__ = .;
+        QUAD((__CTOR_END__ - __CTOR_LIST__) / 8 - 1)
+        *(.ctors)
+        __CTOR_END__ = .;
+
+        __INIT_ARRAY_LIST__ = .;
+        QUAD((__INIT_ARRAY_END__ - __INIT_ARRAY_LIST__) / 8 - 1)
+        *(.init_array)
+        __INIT_ARRAY_END__ = .;
+
+        /* dtor omitted. */
     }
 
     .bss ALIGN(4K) : AT(ADDR(.bss) - kernel_VMA)

@@ -9,7 +9,7 @@
 /**
  * 低地址区域
  */
-.section .init,"a"
+.section .init32,"a"
 
     /**
      * multiboot
@@ -106,7 +106,7 @@
 /**
  * 低地址 .bss 区域
  */
-.section .init.bss,"aw"
+.section .init32.bss,"aw"
 
     /**
      * GDT
@@ -221,6 +221,7 @@
         push    %rsi
         push    %rdi
 
+        /* c++ */
         call    kernel_main
 
         /* infinite loop */

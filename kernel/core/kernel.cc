@@ -34,14 +34,39 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
   Terminal::printf("Initializing keyboard...\n");
   Keyboard::init();
 
+  Terminal::printf("Kernel initialized! Welcome to WN8OS.\n");
+  Interrupt::enable();
+
+  // 在这里开始调用各种构造函数
+  ABI::ctors();
+  
   //u32 *ptr = (u32*)0xA0000000;
   //u32 do_page_fault = *ptr;
   //Interrupt::init_timer(10);
+  
   Interrupt::enable();
 
+  // 循环接受键盘输入
+  const size_t buffer_size = 128;
+  char buffer[buffer_size];
+
+  // 做一个简易的终端
   while (true) {
-    char ch = Keyboard::getch();
-    Terminal::printf("%x\n", ch);
+    Terminal::printf("> ");
+    Keyboard::getline(buffer, buffer_size);
+    Terminal::newline();
+
+    if (strcmp(buffer, "quit") == 0) {
+      return;
+    } else if (strcmp(buffer, "help") == 0) {
+      Terminal::printf("help: Show this help\n");
+      Terminal::printf("version: Show system version\n");
+      Terminal::printf("quit: Shutdown the system\n");
+    } else if (strcmp(buffer, "version") == 0) {
+      Terminal::printf("WN8OS v0.0.1\n");
+    } else {
+      Terminal::printf("Unknown command: %s\n", buffer);
+    }
   }
 
 }

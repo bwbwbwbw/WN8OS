@@ -6,12 +6,13 @@
 #include <runtime/types.h>
 #include <runtime/memory.h>
 #include <runtime/string.h>
+#include <ioport.h>
 
 namespace Terminal
 {
 
-  static const size_t VGA_WIDTH = 80;
-  static const size_t VGA_HEIGHT = 25;
+  extern const s16 VGA_WIDTH;
+  extern const s16 VGA_HEIGHT;
 
   enum VGA_COLOR {
     COLOR_BLACK = 0,
@@ -33,17 +34,18 @@ namespace Terminal
   };
 
   void init();
-  void clear_line(size_t row);
+  void clear_line(s16 row);
   void scroll();
   void newline();
   void setcolor(u8 color);
-  void putentryat(char c, u8 color, size_t x, size_t y);
+  void putentryat(char c, u8 color, s16 x, s16 y);
   void putchar(char c);
   void write(const char * data);
   void printf(const char *s, ...);
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg);
   u16 make_vgaentry(char c, u8 color);
+  void deletechar();
 
-};
+}
 
 #endif

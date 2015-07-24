@@ -194,7 +194,7 @@ namespace Keyboard
 
   const size_t KEY_BUFFER_SIZE = 16;
   volatile keycode_t key_buffer[KEY_BUFFER_SIZE];
-  volatile size_t key_buffer_len = -1;
+  volatile s64 key_buffer_len = -1;
 
   keycode_t keycodeBuf = -1;
 
@@ -211,7 +211,6 @@ namespace Keyboard
       if (key_buffer_len + 1 < KEY_BUFFER_SIZE) {
         key_buffer[++key_buffer_len] = code;
       }
-      Terminal::printf("code=%x\n", code);
     }
   }
 
@@ -241,7 +240,29 @@ namespace Keyboard
     }
     key_buffer_len--;
     Interrupt::enable();
+    if (ret > 0x20 && ret <= 0x7e) {
+      // 如果是可见字符，则显示出来
+      Terminal::putchar(ret);
+    }
     return (char)ret;
+  }
+
+  void getline(char * buffer, size_t len)
+  {
+    size_t pos = 0;
+    char ch = getch();
+    while (ch != 0xA && pos + 1 < len) {
+      if (ch > 0x20 && ch <= 0x7e) {
+        buffer[pos++] = ch;
+      } else if (ch == 0x8) {
+        if (pos > 0) {
+          pos--;
+          Terminal::deletechar();
+        }
+      }
+      ch = getch();
+    }
+    buffer[pos] = '\0';
   }
 
 }

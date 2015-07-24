@@ -69,8 +69,8 @@ namespace Keyboard
 
   bool has_key();
   char getch();
+  void getline(char * buffer, size_t len);
 
 }
-
 
 #endif
