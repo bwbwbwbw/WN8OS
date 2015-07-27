@@ -10,8 +10,9 @@ all:
 	@echo "Building WN8OS kernel..."
 	make -C $(KERNELDIR)
 
-pack:
 	@echo "Packing kernel..."
+	-sudo losetup -d /dev/loop1 >/dev/null
+	-sudo losetup -d /dev/loop0 >/dev/null
 	cd $(SDKDIR) && sudo bash makeimage.sh
 
 run:
@@ -19,6 +20,9 @@ run:
 
 qemu:
 	cd $(SDKDIR) && bash qemu.sh
+
+debug:
+	cd $(SDKDIR) && gdb -x gdb_remote
 
 clean:
 	make -C $(KERNELDIR) clean

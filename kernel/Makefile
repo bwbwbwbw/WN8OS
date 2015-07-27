@@ -20,7 +20,7 @@ $(KERNEL): $(OBJS)
 	$(SC) $(SCFLAG) -c $< -o $@
 
 %.o: %.S
-	$(SC) $(SCFLAG) -c $< -o $@
+	$(ASM) $(ASMFLAG) -c $< -o $@
 
 clean:
 	rm -f $(OBJS) $(KERNEL)
