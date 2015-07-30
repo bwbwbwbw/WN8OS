@@ -5,8 +5,9 @@
 
 #define ASM 1
 
-#include <isr.h>
+#include <interrupt.h>
 
+# in interrupt.h
 .extern interrupt_handler
 
     /* ISR Handler */

@@ -7,6 +7,7 @@
 #include <mm/sbrk.h>
 #include <runtime/string.h>
 #include <runtime/memory.h>
+#include <terminal.h>
 
 #define fprintf(fd, format, args...)  Terminal::printf(format, ##args)
 

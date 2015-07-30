@@ -5,8 +5,7 @@ void reverse(char * str, int length)
 {
   int start = 0;
   int end = length -1;
-  while (start < end)
-  {
+  while (start < end) {
     char tmp = *(str+start);
     *(str+start) = *(str+end);
     *(str+end) = tmp;
@@ -23,8 +22,7 @@ char* itoa(u64 num, char* str, int base)
   bool isNegative = false;
  
   /* Handle 0 explicitely, otherwise empty string is printed for 0 */
-  if (num == 0)
-  {
+  if (num == 0) {
     str[i++] = '0';
     str[i] = '\0';
     return str;
@@ -39,8 +37,7 @@ char* itoa(u64 num, char* str, int base)
   }*/
  
   // Process individual digits
-  while (num != 0)
-  {
+  while (num != 0) {
     int rem = num % base;
     str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
     num = num/base;

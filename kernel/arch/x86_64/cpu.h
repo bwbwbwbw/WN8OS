@@ -3,10 +3,12 @@
 
 #include <runtime/types.h>
 
-struct registers_struct
+#ifndef ASM
+
+typedef struct registers_struct
 {
   u64 r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx, rbx, rax;
-};
-typedef struct registers_struct registers_t;
+} registers_t;
 
+#endif
 #endif

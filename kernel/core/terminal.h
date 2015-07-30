@@ -1,12 +1,7 @@
 #ifndef _TERMINAL_H_
 #define _TERMINAL_H_
 
-#include <stdarg.h>
-#include <runtime/itoa.h>
 #include <runtime/types.h>
-#include <runtime/memory.h>
-#include <runtime/string.h>
-#include <ioport.h>
 
 namespace Terminal
 {

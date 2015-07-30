@@ -2,11 +2,12 @@
 #define _INTERRUPT_H_
 
 #include <runtime/types.h>
-
-#include <isr.h>
-#include <ioport.h>
-#include <terminal.h>
 #include <cpu.h>
+
+#define INTERRUPT_MAX         64
+#define INTERRUPT_ISR_ALIGN   16
+
+#ifndef ASM
 
 namespace Interrupt
 {
@@ -30,14 +31,29 @@ namespace Interrupt
   extern const interrupt_vector_t INT_IRQ14;
   extern const interrupt_vector_t INT_IRQ15;
 
-  struct interrupt_stack_frame_struct
+  typedef struct idt_ptr_struct
+  {
+    u16 limit;
+    u64 base;
+  } __attribute__((packed)) idt_ptr_t;
+
+  typedef struct idt_entry_struct
+  {
+    u16 base_lo;
+    u16 select;
+    u8 zero_1;
+    u8 flags;
+    u16 base_mi;
+    u32 base_hi;
+    u32 zero_2;
+  } __attribute__((packed)) idt_entry_t;
+
+  typedef struct interrupt_stack_frame_struct
   {
     u64 rip, cs, rflags, rsp, ss;
-  };
-  typedef struct interrupt_stack_frame_struct interrupt_stack_frame_t;
+  } interrupt_stack_frame_t;
 
-  typedef void (*interrupt_handler_t)
-  (
+  typedef void (*interrupt_handler_t) (
     interrupt_vector_t vector,
     u64 error_code,
     registers_t *registers,
@@ -59,4 +75,5 @@ namespace Interrupt
 
 }
 
+#endif
 #endif

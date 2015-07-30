@@ -23,11 +23,9 @@
 #ifndef MALLOC_280_H
 #define MALLOC_280_H
 
-#include <mm/config.h>
-#include <terminal.h>
+#include <mm/malloc_config.h>
 
-extern "C"
-{
+extern "C" {
 
 /*
   malloc(size_t n)
@@ -87,4 +85,4 @@ void* realloc(void*, size_t);
 
 }
 
-#endif /* MALLOC_280_H */
+#endif

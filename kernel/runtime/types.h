@@ -1,5 +1,8 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
+
+#define NULL 0
+
 #ifndef ASM
 
 // 遵循 LP64
@@ -35,8 +38,6 @@ typedef u64 uintptr_t;
 typedef s64 ptrdiff_t;
 
 typedef u64 size_t;
-
-#define NULL 0
 
 #endif
 #endif

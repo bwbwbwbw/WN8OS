@@ -5,8 +5,9 @@
 
 namespace MM
 {
-  void init();
+
   void * sbrk(ptrdiff_t increment);
+
 }
 
 #endif

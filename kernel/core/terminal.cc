@@ -1,4 +1,9 @@
-#include <terminal.h>
+#include "terminal.h"
+#include <runtime/itoa.h>
+#include <runtime/memory.h>
+#include <runtime/string.h>
+#include <stdarg.h>
+#include <ioport.h>
 
 namespace Terminal
 {

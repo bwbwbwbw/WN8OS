@@ -3,16 +3,17 @@
 
 #include <mm/malloc.h>
 
-namespace std {
+namespace std
+{
 
-inline void bad_alloc(const char *what = NULL) {
-  if (what == NULL) {
-    //panic::panic("Bad alloc.");
+  inline void bad_alloc(const char *what = NULL) {
+    if (what == NULL) {
+      //panic::panic("Bad alloc.");
+    }
+    //panic::panic(what);
   }
-  //panic::panic(what);
-}
 
-} /* std */
+}
 
 inline void *operator new(size_t n) {
   void *p = malloc(n);

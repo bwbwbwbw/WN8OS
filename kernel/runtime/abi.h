@@ -1,11 +1,14 @@
 #ifndef __ABI_H__
 #define __ABI_H__
 
-namespace ABI {
+#include <runtime/types.h>
 
-void ctors(void);
-void dtors(void);
+namespace ABI
+{
 
-} /* ABI */
+  void ctors(void);
+  void dtors(void);
+
+}
 
 #endif

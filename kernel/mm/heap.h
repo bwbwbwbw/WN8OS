@@ -14,11 +14,10 @@ namespace Heap
   extern const int NODE_SPLIT;
   extern const int NODE_FULL;
 
-  struct buddy_struct {
+  typedef struct buddy_struct {
     u64 level;
     u64 tree[1]; 
-  };
-  typedef struct buddy_struct buddy_t;
+  } buddy_t;
 
   void init();
 

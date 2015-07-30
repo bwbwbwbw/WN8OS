@@ -3,9 +3,6 @@
 
 #include <runtime/types.h>
 
-#include <interrupt.h>
-#include <terminal.h>
-
 namespace Keyboard
 {
 

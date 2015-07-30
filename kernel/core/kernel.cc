@@ -1,10 +1,19 @@
-#include <kernel.h>
+#include "kernel.h"
+#include <multiboot.h>
 
-#include <mm/malloc.h>
+#include <mm/heap.h>
+#include <mm/page.h>
+
+#include <simd.h>
+#include <interrupt.h>
+#include <terminal.h>
+#include <keyboard.h>
+#include <runtime/abi.h>
 
 extern "C"
 void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
 {
+
   Terminal::init();
 
   // 只允许从 GRUB 启动
@@ -14,16 +23,16 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
     return;
   }
 
+  SIMD::sse_enable();
+
   // 初始化内存管理
   Terminal::printf("initializing memory management...\n");
   Terminal::printf("mem_lower = %x KB, mem_upper = %x KB\n", mb_info->mem_lower, mb_info->mem_upper);
-  MM::init();
   Heap::init();
   Page::init(mb_info->mem_upper);
 
   // 设置中断表
   Terminal::printf("Initializing interrupting...\n");
-  IDT::init();
   Interrupt::init();
   Interrupt::remap_pic();
   
@@ -44,8 +53,6 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
   //u32 do_page_fault = *ptr;
   //Interrupt::init_timer(10);
   
-  Interrupt::enable();
-
   // 循环接受键盘输入
   const size_t buffer_size = 128;
   char buffer[buffer_size];

@@ -1,5 +1,11 @@
-#include <interrupt.h>
+#include "interrupt.h"
+
+#include <arch.h>
+#include <runtime/memory.h>
 #include <terminal.h>
+#include <ioport.h>
+
+extern void * ISR_HANDLERS;  // in isr.S
 
 namespace Interrupt
 {
@@ -21,14 +27,64 @@ namespace Interrupt
   const interrupt_vector_t INT_IRQ14 = (INT_IRQ8 + 6);
   const interrupt_vector_t INT_IRQ15 = (INT_IRQ8 + 7);
 
+  // IDT
+  idt_entry_t idt_entries[256];
+  idt_ptr_t   idt_ptr;
+
+  // interrupt handlers
   interrupt_handler_t handlers[INTERRUPT_MAX];
 
+  /**
+   * 设置一个中断向量
+   */
+  void idt_set_gate(u8 vector, uintptr_t base, u16 select, u8 flags)
+  {
+    //Terminal::printf("set idt #%d: %x\n", vector, base);
+
+    idt_entries[vector].base_lo = base & 0xFFFF;
+    idt_entries[vector].base_mi = (base >> 16) & 0xFFFF;
+    idt_entries[vector].base_hi = (base >> 32);
+
+    idt_entries[vector].select  = select;
+    idt_entries[vector].zero_1  = 0;
+    idt_entries[vector].zero_2  = 0;
+
+    idt_entries[vector].flags   = flags | 0x60;
+  }
+
+  /**
+   * 更新 IDT 寄存器
+   */
+  void idt_flush(idt_ptr_t * idt_ptr)
+  {
+    __asm__ __volatile__ ("lidt (%[idtr])" : : [idtr]"p"((uintptr_t)idt_ptr));
+  }
+
+  /**
+   * 初始化：中断描述表，0 ~ INTERRUPT_MAX - 1 中断都将最后由 interrupt_handler 处理
+   */
   void init()
   {
-    // 未注册的都为 0
+    // 重置所有中断处理函数指针
     for (u32 i = 0; i < INTERRUPT_MAX; ++i) {
       handlers[i] = 0;
     }
+
+    idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
+    idt_ptr.base  = (uintptr_t)&idt_entries;
+
+    //Terminal::printf("interrupt_max = %d\n", INTERRUPT_MAX);
+    //Terminal::printf("&ISR_HANDLERS - KERNEL_VMA_BASE = %x\n", ((u64)&ISR_HANDLERS)-KERNEL_VMA_BASE);
+
+    memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
+
+    for (u16 i = 0; i < INTERRUPT_MAX; ++i) {
+      uintptr_t handlerAddress = (uintptr_t)&ISR_HANDLERS + i * INTERRUPT_ISR_ALIGN;
+      // handlerAddress 为线性地址，需要转换成 CS_KERNEL:偏移地址
+      idt_set_gate(i, handlerAddress - KERNEL_VMA_BASE, CS_KERNEL, 0x8E);
+    }
+
+    idt_flush(&idt_ptr);
   }
 
   /**
@@ -123,8 +179,7 @@ void interrupt_handler(
   }
 
   // RPC 中断？
-  if (vector == 63)
-  {
+  if (vector == 63) {
     /*  interrupt_rpc_t rpc = (interrupt_rpc_t)(void*)registers->rdi;
       rpc(registers, interrupt_stack_frame,
           registers->rsi, registers->rdx, registers->rcx, registers->r8, registers->r9);
@@ -132,8 +187,7 @@ void interrupt_handler(
   }
 
   // 时钟中断？
-  if (vector == Interrupt::INT_IRQ0) // timer interrupt
-  {
+  if (vector == Interrupt::INT_IRQ0) {
     // Do nothing
     //Terminal::printf("tick: %x\n", ++tick);
   }

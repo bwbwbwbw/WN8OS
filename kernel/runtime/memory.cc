@@ -38,7 +38,7 @@ memcmp(const void * s1, const void * s2, size_t n)
  * sizeof(word) MUST BE A POWER OF TWO
  * SO THAT wmask BELOW IS ALL ONES
  */
-typedef int word;   /* "word" used for optimal copy speed */
+typedef u64 word;   /* "word" used for optimal copy speed */
 
 #define wsize sizeof(word)
 #define wmask (wsize - 1)
