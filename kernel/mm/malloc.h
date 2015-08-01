@@ -83,6 +83,18 @@ void* calloc(size_t, size_t);
 */
 void* realloc(void*, size_t);
 
+/*
+  memalign(size_t alignment, size_t n);
+  Returns a pointer to a newly allocated chunk of n bytes, aligned
+  in accord with the alignment argument.
+  The alignment argument should be a power of two. If the argument is
+  not a power of two, the nearest greater power is used.
+  8-byte alignment is guaranteed by normal malloc calls, so don't
+  bother calling memalign with an argument of 8 or less.
+  Overreliance on memalign is a sure way to fragment space.
+*/
+void* memalign(size_t, size_t);
+
 }
 
 #endif

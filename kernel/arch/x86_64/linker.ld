@@ -9,7 +9,7 @@ SECTIONS
 {
     /** 链接到低地址 */
     . = kernel_LMA;
-    KERNEL_START = .;
+    KERNEL_START_PHYSICAL = .;
 
     .init32 :
     {
@@ -29,51 +29,51 @@ SECTIONS
 
     .text ALIGN(4K) : AT(ADDR(.text) - kernel_VMA)
     {
-        TEXT_START = . - kernel_VMA;
+        TEXT_START = .;
         *(.text)
         *(.text.*)
-        TEXT_END = . - kernel_VMA;
+        TEXT_END = .;
     }
 
     .rodata ALIGN(4K) : AT(ADDR(.rodata) - kernel_VMA)
     {
-        RODATA_START = . - kernel_VMA;
+        RODATA_START = .;
         *(.rodata)
         *(.rodata.*)
-        RODATA_END = . - kernel_VMA;
+        RODATA_END = .;
     }
 
     .data ALIGN(4K) : AT(ADDR(.data) - kernel_VMA)
     {
-        DATA_START = . - kernel_VMA;
+        DATA_START = .;
         *(.data)
         *(.data.*)
-        DATA_END = . - kernel_VMA;
+        DATA_END = .;
     }
 
-    .ctors ALIGN(4K) :
+    .ctors ALIGN(4K) : AT(ADDR(.ctors) - kernel_VMA)
     {
-        __CTOR_LIST__ = .;
-        QUAD((__CTOR_END__ - __CTOR_LIST__) / 8 - 1)
+        CTOR_START = .;
+        QUAD((CTOR_END - CTOR_START) / 8 - 1)
         *(.ctors)
-        __CTOR_END__ = .;
+        CTOR_END = .;
 
-        __INIT_ARRAY_LIST__ = .;
-        QUAD((__INIT_ARRAY_END__ - __INIT_ARRAY_LIST__) / 8 - 1)
+        INIT_ARRAY_START = .;
+        QUAD((INIT_ARRAY_END - INIT_ARRAY_START) / 8 - 1)
         *(.init_array)
-        __INIT_ARRAY_END__ = .;
+        INIT_ARRAY_END = .;
 
         /* dtor omitted. */
     }
 
     .bss ALIGN(4K) : AT(ADDR(.bss) - kernel_VMA)
     {
-        BSS_START = . - kernel_VMA;
+        BSS_START = .;
         *(COMMON)
         *(.bss)
         *(.bss.*)
-        BSS_END = . - kernel_VMA;
+        BSS_END = .;
     }
 
-    KERNEL_END = . - kernel_VMA;
+    KERNEL_END_PHYSICAL = . - kernel_VMA;
 }

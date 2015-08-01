@@ -2,16 +2,16 @@
 
 #include <runtime/abi.h>
 
-extern u64 __INIT_ARRAY_LIST__;
-extern u64 __CTOR_LIST__;
+extern u64 INIT_ARRAY_START;
+extern u64 CTOR_START;
 
 namespace ABI
 {
 
   typedef void (* fn_ptr) (void);
 
-  static fn_ptr *lpfn_inta_ptr = (fn_ptr *) &__INIT_ARRAY_LIST__;
-  static fn_ptr *lpfn_ctor_ptr = (fn_ptr *) &__CTOR_LIST__;
+  static fn_ptr *lpfn_inta_ptr = (fn_ptr *) &INIT_ARRAY_START;
+  static fn_ptr *lpfn_ctor_ptr = (fn_ptr *) &CTOR_START;
 
   static void wkctor(fn_ptr *lpfn_ptr) {
     u64 ctor_count = (u64) (*lpfn_ptr);

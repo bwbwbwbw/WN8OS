@@ -80,6 +80,10 @@
 
     START64:
     .code64
+        /* 64bit GDT */
+        movq    $(GDT_64), %rax
+        lgdt    (%rax)
+
         /* 重置段寄存器 */
         movw    $DS_KERNEL, %bx
         movw    %bx, %ds
@@ -109,11 +113,18 @@
 .section .init32.bss,"aw"
 
     /**
-     * GDT
+     * GDT for 32bit
      */
     GDT_32:
         .hword GDT_END - GDT_DATA - 1
         .long GDT_DATA
+
+    /**
+     * GDT for 64bit (higher part)
+     */
+    GDT_64:
+        .hword GDT_END - GDT_DATA - 1
+        .quad GDT_DATA + KERNEL_VMA_BASE  # 此处是线性地址
 
     GDT_DATA:
         /* null */
@@ -148,6 +159,7 @@
      * CR3 -> PML4 -> PML3 -> PML2 -> PML1 -> ADDR
      */
     .align 4096
+    .global PML4_BASE
     PML4_BASE:
         # 映射线性地址低半区最低一块区域和高半区最低一块区域（entry 0x0，entry 0x256）
         # 注意 PML3, PML2, PML1 已经 4K 对齐了，因此最低 12 位都是 0

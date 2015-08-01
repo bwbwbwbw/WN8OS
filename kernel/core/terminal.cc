@@ -4,9 +4,12 @@
 #include <runtime/string.h>
 #include <stdarg.h>
 #include <ioport.h>
+#include <arch.h>
 
 namespace Terminal
 {
+
+  const uintptr_t SCREEN_BUFFER_ADDR = 0xB8000;
 
   const s16 VGA_WIDTH = 80;
   const s16 VGA_HEIGHT = 25;
@@ -126,7 +129,7 @@ namespace Terminal
     y = 0;
     x = 0;
     cur_color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
-    buffer = (u16 *)0xB8000;
+    buffer = (u16 *)(SCREEN_BUFFER_ADDR + KERNEL_VMA_BASE);
     for (s16 y = 0; y < VGA_HEIGHT; y++) {
       clear_line(y);
     }

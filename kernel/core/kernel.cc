@@ -1,5 +1,6 @@
 #include "kernel.h"
 #include <multiboot.h>
+#include <arch.h>
 
 #include <mm/heap.h>
 #include <mm/page.h>
@@ -28,7 +29,7 @@ void kernel_main(u32 mb_magic, multiboot_info_t * mb_info)
   // 初始化内存管理
   Terminal::printf("initializing memory management...\n");
   Terminal::printf("mem_lower = %x KB, mem_upper = %x KB\n", mb_info->mem_lower, mb_info->mem_upper);
-  Heap::init();
+  //Heap::init();
   Page::init(mb_info->mem_upper);
 
   // 设置中断表

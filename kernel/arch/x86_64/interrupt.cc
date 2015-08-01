@@ -73,15 +73,12 @@ namespace Interrupt
     idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
     idt_ptr.base  = (uintptr_t)&idt_entries;
 
-    //Terminal::printf("interrupt_max = %d\n", INTERRUPT_MAX);
-    //Terminal::printf("&ISR_HANDLERS - KERNEL_VMA_BASE = %x\n", ((u64)&ISR_HANDLERS)-KERNEL_VMA_BASE);
-
     memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
 
     for (u16 i = 0; i < INTERRUPT_MAX; ++i) {
       uintptr_t handlerAddress = (uintptr_t)&ISR_HANDLERS + i * INTERRUPT_ISR_ALIGN;
       // handlerAddress 为线性地址，需要转换成 CS_KERNEL:偏移地址
-      idt_set_gate(i, handlerAddress - KERNEL_VMA_BASE, CS_KERNEL, 0x8E);
+      idt_set_gate(i, handlerAddress, CS_KERNEL, 0x8E);
     }
 
     idt_flush(&idt_ptr);

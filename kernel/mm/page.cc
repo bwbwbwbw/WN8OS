@@ -1,41 +1,30 @@
 #include "page.h"
 
-#include <terminal.h>
+#include <arch.h>
+#include <mm/malloc.h>
+#include <runtime/memory.h>
+
+extern void * PML4_BASE;
 
 namespace Page
 {
-  page_map_t PT;   // 每个 PT_entry = 4K，每个 PT = 2M
-  page_map_t PD;   // 每个 PD_entry = 2M，每个 PD = 1G
-  page_map_t PDP;  // 每个 PDP_entry = 1G，每个 PDP = 512G
-  // PML4 暂不支持，目前只映射第0项和第512项（低地址、高地址），每一项可容纳 512GB
+  /** 一共有多少帧 */
+  u64 n_frame;
 
-  void init(u64 mem_size_KB)
-  {
-    // 计算最多需要多少 PAGE_TABLE
-    // 每个 PAGE_TABLE 是 4KiB，可以表达 512 * 4KiB = 2MiB 内存
-    // 所以最多需要 mem_size_byte / 2MiB 个 PAGE_TABLE
-    PT.max_n = (mem_size_KB >> 1 >> 10) + 1;
-    PT.n_bitmap = (PT.max_n >> 6) + 1;
+  /** 有多少位图向量 */
+  u64 n_frame_bitmap;
 
-    // 计算最多需要多少 PAGE_DIRECTORY
-    // 每个 PAGE_DIRECTORY 可以容纳 512 个 PAGE_TABLE
-    PD.max_n = (PT.max_n >> 9) + 1;
-    PD.n_bitmap = (PD.max_n >> 6) + 1;
+  /** 存储位图向量 */
+  u64 * frame_bitmap;
 
-    // 计算最多需要多少 PDP
-    // 每个 PDP 可以容纳 512 个 PD
-    PDP.max_n = (PD.max_n >> 9) + 1;
-    PDP.n_bitmap = (PDP.max_n >> 6) + 1;
+  /** 最后一次分配的是哪一帧 */
+  u64 last_alloc_index;
 
-    // 分配位图空间
-    PT.bitmap = (u64 *)malloc(PT.n_bitmap * 8);
-    PD.bitmap = (u64 *)malloc(PD.n_bitmap * 8);
-    PDP.bitmap = (u64 *)malloc(PDP.n_bitmap * 8);
+  /** PML4 内存，线性地址 */
+  page_table_t * PML4;
 
-    Terminal::printf("[PAGE] &PT_bitmap: %x, n=%x\n", PT.bitmap, PT.n_bitmap);
-    Terminal::printf("[PAGE] &PD_bitmap: %x, n=%x\n", PD.bitmap, PD.n_bitmap);
-    Terminal::printf("[PAGE] &PDP_bitmap: %x, n=%x\n", PDP.bitmap, PDP.n_bitmap);
-  }
+  /** 由于我们仅仅映射 PML4 第 0 项和第 256 项，所以直接存储相应的 PDP，可以方便后续操作，这里是线性地址 */
+  page_table_t * PDP_user, * PDP_kernel;
 
   /**
    * 给定一个位图索引，返回其向量位置
@@ -54,17 +43,17 @@ namespace Page
   }
 
   /**
-   * 获得指定 page_map 类型的闲置块
+   * 获得可用帧
    */
-  u64 get_free_index(page_map_t * map)
+  u64 get_free_frame()
   {
     // 从上次分配位置开始搜索
-    u64 vector_index = bit_to_index(map->last_alloc_entry);
+    u64 vector_index = bit_to_index(last_alloc_index);
     u64 index = vector_index << 6;
 
-    while (vector_index < map->n_bitmap) {
+    while (vector_index < n_frame_bitmap) {
       // 按照64位比较进行跳跃
-      u64 vec = map->bitmap[vector_index];
+      u64 vec = frame_bitmap[vector_index];
       if (vec == 0xFFFFFFFFFFFFFFFF) {
         index += 64;
         continue;
@@ -99,11 +88,92 @@ namespace Page
     return (u64)-1;
   }
 
-  void alloc_frame(page_map_t * map, page_entry_t * entry, int is_kernel, int is_writeable)
+  inline page_entry_t make_empty_page_table_entry()
   {
-    if (entry->frame != 0) {
-      return;
-    }
-    //u64 
+    page_entry_t entry;
+    entry.present = 0;
+    return entry;
   }
+
+  inline page_entry_t make_page_table_entry(u32 rw, u32 user, uintptr_t addr)
+  {
+    page_entry_t entry;
+    entry.present = 1;
+    entry.rw = rw;
+    entry.user = user;
+    entry.accessed = 0;
+    entry.dirty = 0;
+    entry.unused = 0;
+    entry.frame = addr >> 12;
+    return entry;
+  }
+
+  void init(u64 mem_size_KB)
+  {
+    // 初始化页帧的位图
+    n_frame = mem_size_KB >> 2;
+    n_frame_bitmap = bit_to_index(n_frame) + 1;
+    frame_bitmap = (u64*)malloc(n_frame_bitmap * sizeof(u64));
+    for (int i = 0; i < n_frame_bitmap; ++i) {
+      frame_bitmap[i] = 0;
+    }
+    last_alloc_index = 0;
+
+    // 希望建立的线性地址到物理地址映射关系为：
+    //         线性地址                                       => 物理地址
+    // ==========================================================================
+    // 内核空间 KERNEL_VMA_BASE ~ KERNEL_VMA_BASE + mem_size  => 0 ~ mem_size
+    // 用户空间 0 ~ KERNEL_VMA_BASE                           => 动态分配帧
+    
+    // PML4 复用临时建立的 PML4
+    PML4 = (page_table_t *)((uintptr_t)(&PML4_BASE) + KERNEL_VMA_BASE);
+
+    // 建立内核 PDP
+    PDP_kernel = (page_table_t *)memalign(4096, 4096);  // 4096 aligned
+
+    uintptr_t addr = 0, addr_max = mem_size_KB << 10;
+
+    // 填充内核 PDP 下每一项 PD
+    int page_dir_index = 0;
+    for (; page_dir_index < 512 && addr <= addr_max; ++page_dir_index) {
+      page_table_t * PD = (page_table_t *)memalign(4096, 4096);
+      // rw = 1, user = 0
+      PDP_kernel->entries[page_dir_index] = make_page_table_entry(1, 0, (uintptr_t)PD - KERNEL_VMA_BASE);
+
+      // 填充 PD 下每一项 PT
+      int page_table_index = 0;
+      for (; page_table_index < 512 && addr <= addr_max; ++page_table_index) {
+        page_table_t * PT = (page_table_t *)memalign(4096, 4096);
+        // rw = 1, user = 0
+        PD->entries[page_table_index] = make_page_table_entry(1, 0, (uintptr_t)PT - KERNEL_VMA_BASE);
+
+        // 填充 PT 下每一项 PageEntry
+        int page_index = 0;
+        for (; page_index < 512 && addr <= addr_max; ++page_index) {
+          // rw = 1, user = 0
+          PT->entries[page_index] = make_page_table_entry(1, 0, addr);
+          addr += 4096;
+        }
+
+        // 剩余的每一项 PageEntry 填充 0
+        for (; page_index < 512; ++page_index) {
+          PT->entries[page_index] = make_empty_page_table_entry();
+        }
+      }
+
+      // 剩余的每一项 PageTableEntry 填充 0
+      for (; page_table_index < 512; ++page_table_index) {
+        PD->entries[page_table_index] = make_empty_page_table_entry();
+      }
+    }
+
+    // 剩余的每一项 PageDirectoryEntry 填充 0
+    for (; page_dir_index < 512; ++page_dir_index) {
+      PDP_kernel->entries[page_dir_index] = make_empty_page_table_entry();
+    }
+
+    PML4->entries[0] = make_empty_page_table_entry();
+    PML4->entries[256] = make_page_table_entry(1, 0, (uintptr_t)PDP_kernel - KERNEL_VMA_BASE);
+  }
+
 }
