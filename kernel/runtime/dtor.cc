@@ -18,7 +18,7 @@ void __cxa_finalize(fn_ptr lpfn)
 
 }
 
-namespace ABI
+namespace abi
 {
   
   void dtors(void)

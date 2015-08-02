@@ -5,7 +5,7 @@
 
 #include "heap.h"
 
-namespace Heap
+namespace heap
 {
 
   const int NODE_UNUSED = 0;
@@ -199,22 +199,22 @@ namespace Heap
   _dump(buddy_t * self, s64 index , s64 level) {
     switch (self->tree[index]) {
     case NODE_UNUSED:
-      Terminal::printf("(%d:%d)", _index_offset(index, level, self->level) , 1 << (self->level - level));
+      terminal::printf("(%d:%d)", _index_offset(index, level, self->level) , 1 << (self->level - level));
       break;
     case NODE_USED:
-      Terminal::printf("[%d:%d]", _index_offset(index, level, self->level) , 1 << (self->level - level));
+      terminal::printf("[%d:%d]", _index_offset(index, level, self->level) , 1 << (self->level - level));
       break;
     case NODE_FULL:
-      Terminal::printf("{");
+      terminal::printf("{");
       _dump(self, index * 2 + 1 , level+1);
       _dump(self, index * 2 + 2 , level+1);
-      Terminal::printf("}");
+      terminal::printf("}");
       break;
     default:
-      Terminal::printf("(");
+      terminal::printf("(");
       _dump(self, index * 2 + 1 , level+1);
       _dump(self, index * 2 + 2 , level+1);
-      Terminal::printf(")");
+      terminal::printf(")");
       break;
     }
   }
@@ -222,7 +222,7 @@ namespace Heap
   void
   buddy_dump(buddy_t * self) {
     _dump(self, 0 , 0);
-    Terminal::printf("\n");
+    terminal::printf("\n");
   }
 
   buddy_t * heap;

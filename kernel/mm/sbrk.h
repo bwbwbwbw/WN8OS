@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace MM
+namespace mm
 {
 
   void * sbrk(ptrdiff_t increment);

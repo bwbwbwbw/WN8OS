@@ -6,7 +6,7 @@
 #include <ioport.h>
 #include <arch.h>
 
-namespace Terminal
+namespace terminal
 {
 
   const uintptr_t SCREEN_BUFFER_ADDR = 0xB8000;
@@ -21,10 +21,10 @@ namespace Terminal
   void update_cursor()
   {
     s16 position = (y * VGA_WIDTH) + x;
-    IOport::outb(0x3D4, 0x0F);
-    IOport::outb(0x3D5, (u8)(position & 0xFF));
-    IOport::outb(0x3D4, 0x0E);
-    IOport::outb(0x3D5, (u8)((position >> 8) & 0xFF));
+    ioport::outb(0x3D4, 0x0F);
+    ioport::outb(0x3D5, (u8)(position & 0xFF));
+    ioport::outb(0x3D4, 0x0E);
+    ioport::outb(0x3D5, (u8)((position >> 8) & 0xFF));
   }
 
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg)

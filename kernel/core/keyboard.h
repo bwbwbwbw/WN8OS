@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace Keyboard
+namespace keyboard
 {
 
   typedef u16 scancode_t;

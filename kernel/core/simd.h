@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace SIMD
+namespace simd
 {
 
   void sse_enable();

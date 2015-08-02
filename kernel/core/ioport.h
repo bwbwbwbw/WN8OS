@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace IOport
+namespace ioport
 {
   typedef u16 ioport_t;
   

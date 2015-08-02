@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace Terminal
+namespace terminal
 {
 
   extern const s16 VGA_WIDTH;

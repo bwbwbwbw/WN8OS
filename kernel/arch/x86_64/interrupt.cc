@@ -7,7 +7,7 @@
 
 extern void * ISR_HANDLERS;  // in isr.S
 
-namespace Interrupt
+namespace interrupt
 {
 
   const interrupt_vector_t INT_IRQ0  = ((interrupt_vector_t)0x20);
@@ -39,7 +39,7 @@ namespace Interrupt
    */
   void idt_set_gate(u8 vector, uintptr_t base, u16 select, u8 flags)
   {
-    //Terminal::printf("set idt #%d: %x\n", vector, base);
+    //terminal::printf("set idt #%d: %x\n", vector, base);
 
     idt_entries[vector].base_lo = base & 0xFFFF;
     idt_entries[vector].base_mi = (base >> 16) & 0xFFFF;
@@ -102,13 +102,13 @@ namespace Interrupt
 
   void eoi_master()
   {
-    IOport::outb(0x20, 0x20);
+    ioport::outb(0x20, 0x20);
   }
 
   void eoi_slave()
   {
-    IOport::outb(0xA0, 0x20);
-    IOport::outb(0x20, 0x20);
+    ioport::outb(0xA0, 0x20);
+    ioport::outb(0x20, 0x20);
   }
 
   /**
@@ -116,14 +116,14 @@ namespace Interrupt
    */
   void remap_pic()
   {
-    IOport::outb(0x20, 0x11);
-    IOport::outb(0xA0, 0x11);
-    IOport::outb(0x21, INT_IRQ0);
-    IOport::outb(0xA1, INT_IRQ8);
-    IOport::outb(0x21, 0x04);
-    IOport::outb(0xA1, 0x02);
-    IOport::outb(0x21, 0x01);
-    IOport::outb(0xA1, 0x01);
+    ioport::outb(0x20, 0x11);
+    ioport::outb(0xA0, 0x11);
+    ioport::outb(0x21, INT_IRQ0);
+    ioport::outb(0xA1, INT_IRQ8);
+    ioport::outb(0x21, 0x04);
+    ioport::outb(0xA1, 0x02);
+    ioport::outb(0x21, 0x01);
+    ioport::outb(0xA1, 0x01);
   }
 
   /**
@@ -131,8 +131,8 @@ namespace Interrupt
    */
   void irq_mask(u16 mask)
   {
-    IOport::outb(0x21, (u8)(mask & 0xff));
-    IOport::outb(0xA1, (u8)(mask >> 8));
+    ioport::outb(0x21, (u8)(mask & 0xff));
+    ioport::outb(0xA1, (u8)(mask >> 8));
   }
 
   /**
@@ -142,13 +142,13 @@ namespace Interrupt
   {
     u32 divisor = 1193180 / frequency;
   
-    IOport::outb(0x43, 0x36);
+    ioport::outb(0x43, 0x36);
   
     u8 l = (u8)(divisor & 0xFF);
     u8 h = (u8)((divisor >> 8) & 0xFF);
   
-    IOport::outb(0x40, l);
-    IOport::outb(0x40, h);
+    ioport::outb(0x40, l);
+    ioport::outb(0x40, h);
   }
 
   /**
@@ -163,15 +163,15 @@ namespace Interrupt
 
 extern "C"
 void interrupt_handler(
-  Interrupt::interrupt_vector_t vector,
+  interrupt::interrupt_vector_t vector,
   u64 error_code,
   registers_t *registers,
-  Interrupt::interrupt_stack_frame_t *interrupt_stack_frame
+  interrupt::interrupt_stack_frame_t *interrupt_stack_frame
   )
 {
   // 调用中断处理函数
-  if (Interrupt::handlers[vector] != 0) {
-    Interrupt::interrupt_handler_t handler = Interrupt::handlers[vector];
+  if (interrupt::handlers[vector] != 0) {
+    interrupt::interrupt_handler_t handler = interrupt::handlers[vector];
     handler(vector, error_code, registers, interrupt_stack_frame);
   }
 
@@ -184,15 +184,15 @@ void interrupt_handler(
   }
 
   // 时钟中断？
-  if (vector == Interrupt::INT_IRQ0) {
+  if (vector == interrupt::INT_IRQ0) {
     // Do nothing
-    //Terminal::printf("tick: %x\n", ++tick);
+    //terminal::printf("tick: %x\n", ++tick);
   }
 
   // 对于 PIC，需要发送 EOI
-  if (vector >= Interrupt::INT_IRQ0 && vector <= Interrupt::INT_IRQ7) {
-    Interrupt::eoi_master();
-  } else if (vector >= Interrupt::INT_IRQ8 && vector <= Interrupt::INT_IRQ15) {
-    Interrupt::eoi_slave();
+  if (vector >= interrupt::INT_IRQ0 && vector <= interrupt::INT_IRQ7) {
+    interrupt::eoi_master();
+  } else if (vector >= interrupt::INT_IRQ8 && vector <= interrupt::INT_IRQ15) {
+    interrupt::eoi_slave();
   }
 }

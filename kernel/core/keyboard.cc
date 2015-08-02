@@ -4,7 +4,7 @@
 #include <interrupt.h>
 #include <terminal.h>
 
-namespace Keyboard
+namespace keyboard
 {
 
   // 修改自：http://geezer.osdevbrasil.net/osd/kbd/kbd.c
@@ -199,14 +199,14 @@ namespace Keyboard
 
   keycode_t keycodeBuf = -1;
 
-  void handler(Interrupt::interrupt_vector_t vector,
+  void handler(interrupt::interrupt_vector_t vector,
     u64 error_code,
     registers_t *registers,
-    Interrupt::interrupt_stack_frame_t *interrupt_stack_frame
+    interrupt::interrupt_stack_frame_t *interrupt_stack_frame
     )
   {
-    unsigned char status = IOport::inb(0x64);
-    unsigned char scancode = IOport::inb(0x60);
+    unsigned char status = ioport::inb(0x64);
+    unsigned char scancode = ioport::inb(0x60);
     keycode_t code = scancode_to_keycode(scancode);
     if (code != (keycode_t)-1) {
       if (key_buffer_len + 1 < KEY_BUFFER_SIZE) {
@@ -217,7 +217,7 @@ namespace Keyboard
 
   void init()
   {
-    Interrupt::register_handler(Interrupt::INT_IRQ1, &handler);
+    interrupt::register_handler(interrupt::INT_IRQ1, &handler);
   }
 
   bool has_key()
@@ -228,22 +228,22 @@ namespace Keyboard
   char getch()
   {
     while (true) {
-      Interrupt::disable();
+      interrupt::disable();
       if (has_key()) {
         break;
       }
-      Interrupt::enable();
+      interrupt::enable();
     }
-    Interrupt::disable();
+    interrupt::disable();
     keycode_t ret = key_buffer[0];
     for (size_t i = 0; i < key_buffer_len; ++i) {
       key_buffer[i] = key_buffer[i + 1];
     }
     key_buffer_len--;
-    Interrupt::enable();
+    interrupt::enable();
     if (ret > 0x20 && ret <= 0x7e) {
       // 如果是可见字符，则显示出来
-      Terminal::putchar(ret);
+      terminal::putchar(ret);
     }
     return (char)ret;
   }
@@ -258,7 +258,7 @@ namespace Keyboard
       } else if (ch == 0x8) {
         if (pos > 0) {
           pos--;
-          Terminal::deletechar();
+          terminal::deletechar();
         }
       }
       ch = getch();

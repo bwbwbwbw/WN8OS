@@ -5,7 +5,7 @@
 #include <mm/malloc.h>
 #include <mm/heap.h>
 
-namespace Page
+namespace page
 {
   typedef struct page_entry_struct
   {

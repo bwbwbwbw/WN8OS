@@ -1,6 +1,6 @@
 #include "ioport.h"
 
-namespace IOport
+namespace ioport
 {
 
   void outb(ioport_t port, u8 val)

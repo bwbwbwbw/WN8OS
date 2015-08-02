@@ -5,7 +5,7 @@
 extern u64 INIT_ARRAY_START;
 extern u64 CTOR_START;
 
-namespace ABI
+namespace abi
 {
 
   typedef void (* fn_ptr) (void);

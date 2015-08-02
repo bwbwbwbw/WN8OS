@@ -1,6 +1,6 @@
 #include "simd.h"
 
-namespace SIMD
+namespace simd
 {
 
   void sse_enable()

@@ -6,7 +6,7 @@
 
 extern void * PML4_BASE;
 
-namespace Page
+namespace page
 {
   /** 一共有多少帧 */
   u64 n_frame;

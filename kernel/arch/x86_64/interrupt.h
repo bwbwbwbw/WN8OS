@@ -9,7 +9,7 @@
 
 #ifndef ASM
 
-namespace Interrupt
+namespace interrupt
 {
 
   typedef u8 interrupt_vector_t;

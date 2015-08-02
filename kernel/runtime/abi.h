@@ -3,7 +3,7 @@
 
 #include <runtime/types.h>
 
-namespace ABI
+namespace abi
 {
 
   void ctors(void);

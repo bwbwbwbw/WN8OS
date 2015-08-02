@@ -9,7 +9,7 @@
 #include <runtime/memory.h>
 #include <terminal.h>
 
-#define fprintf(fd, format, args...)  Terminal::printf(format, ##args)
+#define fprintf(fd, format, args...)  terminal::printf(format, ##args)
 
 #ifdef WIN32
 #undef WIN32
@@ -27,7 +27,7 @@
 #define EINVAL         0
 #define ENOMEM         0
 
-#define MORECORE       MM::sbrk
+#define MORECORE       mm::sbrk
 
 #define NO_MALLOC_STATS 1
 #define LACKS_UNISTD_H

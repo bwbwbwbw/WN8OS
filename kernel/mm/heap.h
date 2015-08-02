@@ -6,7 +6,7 @@
 #include <mm/malloc.h>
 #include <terminal.h>
 
-namespace Heap
+namespace heap
 {
 
   extern const int NODE_UNUSED;
