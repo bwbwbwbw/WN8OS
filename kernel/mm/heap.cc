@@ -16,7 +16,7 @@ namespace heap
   buddy_t * 
   buddy_new(s64 level) {
     s64 size = 1 << level;
-    buddy_t * self = (buddy_t*)malloc(sizeof(buddy_t) + sizeof(uint8_t) * (size * 2 - 2));
+    buddy_t * self = reinterpret_cast<buddy_t*>(malloc(sizeof(buddy_t) + sizeof(uint8_t) * (size * 2 - 2)));
     self->level = level;
     memset(self->tree, NODE_UNUSED , size*2-1);
     return self;
@@ -68,7 +68,7 @@ namespace heap
     if (s==0) {
       size = 1;
     } else {
-      size = (int)next_pow_of_2(s);
+      size = next_pow_of_2(s);
     }
     s64 length = 1 << self->level;
 

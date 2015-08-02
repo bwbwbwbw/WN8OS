@@ -57,7 +57,7 @@ namespace interrupt
    */
   void idt_flush(idt_ptr_t * idt_ptr)
   {
-    __asm__ __volatile__ ("lidt (%[idtr])" : : [idtr]"p"((uintptr_t)idt_ptr));
+    __asm__ __volatile__ ("lidt (%[idtr])" : : [idtr]"p"(reinterpret_cast<uintptr_t>(idt_ptr)));
   }
 
   /**
@@ -71,12 +71,12 @@ namespace interrupt
     }
 
     idt_ptr.limit = sizeof(idt_entry_t) * 256 - 1;
-    idt_ptr.base  = (uintptr_t)&idt_entries;
+    idt_ptr.base  = reinterpret_cast<uintptr_t>(&idt_entries);
 
     memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
 
     for (u16 i = 0; i < INTERRUPT_MAX; ++i) {
-      uintptr_t handlerAddress = (uintptr_t)&ISR_HANDLERS + i * INTERRUPT_ISR_ALIGN;
+      uintptr_t handlerAddress = reinterpret_cast<uintptr_t>(&ISR_HANDLERS) + i * INTERRUPT_ISR_ALIGN;
       // handlerAddress 为线性地址，需要转换成 CS_KERNEL:偏移地址
       idt_set_gate(i, handlerAddress, CS_KERNEL, 0x8E);
     }
@@ -131,8 +131,8 @@ namespace interrupt
    */
   void irq_mask(u16 mask)
   {
-    ioport::outb(0x21, (u8)(mask & 0xff));
-    ioport::outb(0xA1, (u8)(mask >> 8));
+    ioport::outb(0x21, static_cast<u8>(mask & 0xff));
+    ioport::outb(0xA1, static_cast<u8>(mask >> 8));
   }
 
   /**
@@ -144,8 +144,8 @@ namespace interrupt
   
     ioport::outb(0x43, 0x36);
   
-    u8 l = (u8)(divisor & 0xFF);
-    u8 h = (u8)((divisor >> 8) & 0xFF);
+    u8 l = static_cast<u8>(divisor & 0xFF);
+    u8 h = static_cast<u8>((divisor >> 8) & 0xFF);
   
     ioport::outb(0x40, l);
     ioport::outb(0x40, h);

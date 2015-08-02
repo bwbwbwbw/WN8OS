@@ -48,8 +48,8 @@ namespace page
   u64 get_free_frame()
   {
     // 从上次分配位置开始搜索
-    u64 vector_index = bit_to_index(last_alloc_index);
-    u64 index = vector_index << 6;
+    auto vector_index = bit_to_index(last_alloc_index);
+    auto index = vector_index << 6;
 
     while (vector_index < n_frame_bitmap) {
       // 按照64位比较进行跳跃
@@ -85,7 +85,7 @@ namespace page
       return index;
     }
 
-    return (u64)-1;
+    return static_cast<u64>(-1);
   }
 
   inline page_entry_t make_empty_page_table_entry()
@@ -113,7 +113,7 @@ namespace page
     // 初始化页帧的位图
     n_frame = mem_size_KB >> 2;
     n_frame_bitmap = bit_to_index(n_frame) + 1;
-    frame_bitmap = (u64*)malloc(n_frame_bitmap * sizeof(u64));
+    frame_bitmap = reinterpret_cast<u64*>(malloc(n_frame_bitmap * sizeof(u64)));
     for (int i = 0; i < n_frame_bitmap; ++i) {
       frame_bitmap[i] = 0;
     }
@@ -126,26 +126,26 @@ namespace page
     // 用户空间 0 ~ KERNEL_VMA_BASE                           => 动态分配帧
     
     // PML4 复用临时建立的 PML4
-    PML4 = (page_table_t *)((uintptr_t)(&PML4_BASE) + KERNEL_VMA_BASE);
+    PML4 = reinterpret_cast<page_table_t *>(reinterpret_cast<uintptr_t>(&PML4_BASE) + KERNEL_VMA_BASE);
 
     // 建立内核 PDP
-    PDP_kernel = (page_table_t *)memalign(4096, 4096);  // 4096 aligned
+    PDP_kernel = reinterpret_cast<page_table_t *>(memalign(4096, 4096));  // 4096 aligned
 
     uintptr_t addr = 0, addr_max = mem_size_KB << 10;
 
     // 填充内核 PDP 下每一项 PD
     int page_dir_index = 0;
     for (; page_dir_index < 512 && addr <= addr_max; ++page_dir_index) {
-      page_table_t * PD = (page_table_t *)memalign(4096, 4096);
+      page_table_t * PD = reinterpret_cast<page_table_t *>(memalign(4096, 4096));
       // rw = 1, user = 0
-      PDP_kernel->entries[page_dir_index] = make_page_table_entry(1, 0, (uintptr_t)PD - KERNEL_VMA_BASE);
+      PDP_kernel->entries[page_dir_index] = make_page_table_entry(1, 0, reinterpret_cast<uintptr_t>(PD) - KERNEL_VMA_BASE);
 
       // 填充 PD 下每一项 PT
       int page_table_index = 0;
       for (; page_table_index < 512 && addr <= addr_max; ++page_table_index) {
-        page_table_t * PT = (page_table_t *)memalign(4096, 4096);
+        page_table_t * PT = reinterpret_cast<page_table_t *>(memalign(4096, 4096));
         // rw = 1, user = 0
-        PD->entries[page_table_index] = make_page_table_entry(1, 0, (uintptr_t)PT - KERNEL_VMA_BASE);
+        PD->entries[page_table_index] = make_page_table_entry(1, 0, reinterpret_cast<uintptr_t>(PT) - KERNEL_VMA_BASE);
 
         // 填充 PT 下每一项 PageEntry
         int page_index = 0;
@@ -173,7 +173,7 @@ namespace page
     }
 
     PML4->entries[0] = make_empty_page_table_entry();
-    PML4->entries[256] = make_page_table_entry(1, 0, (uintptr_t)PDP_kernel - KERNEL_VMA_BASE);
+    PML4->entries[256] = make_page_table_entry(1, 0, reinterpret_cast<uintptr_t>(PDP_kernel) - KERNEL_VMA_BASE);
   }
 
 }

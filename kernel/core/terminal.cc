@@ -22,9 +22,9 @@ namespace terminal
   {
     s16 position = (y * VGA_WIDTH) + x;
     ioport::outb(0x3D4, 0x0F);
-    ioport::outb(0x3D5, (u8)(position & 0xFF));
+    ioport::outb(0x3D5, static_cast<u8>(position & 0xFF));
     ioport::outb(0x3D4, 0x0E);
-    ioport::outb(0x3D5, (u8)((position >> 8) & 0xFF));
+    ioport::outb(0x3D5, static_cast<u8>((position >> 8) & 0xFF));
   }
 
   u8 make_color(enum VGA_COLOR fg, enum VGA_COLOR bg)
@@ -41,7 +41,7 @@ namespace terminal
 
   void clear_line(s16 row)
   {
-    u16 blank = make_vgaentry(' ', cur_color);
+    auto blank = make_vgaentry(' ', cur_color);
     for (u16 i = row * VGA_WIDTH; i < VGA_HEIGHT * VGA_WIDTH; ++i) {
       buffer[i] = blank;
     }
@@ -50,7 +50,7 @@ namespace terminal
 
   void scroll()
   {
-    for (s16 row = 0; row < VGA_HEIGHT - 1; ++row) {
+    for (u16 row = 0; row < VGA_HEIGHT - 1; ++row) {
       memcpy(buffer + row * VGA_WIDTH, buffer + (row + 1) * VGA_WIDTH, VGA_WIDTH * sizeof(u16));
     }
     clear_line(VGA_HEIGHT - 1);
@@ -118,7 +118,7 @@ namespace terminal
 
   void write(const char * data)
   {
-    s16 datalen = strlen(data);
+    auto datalen = strlen(data);
     for (s16 i = 0; i < datalen; i++) {
       putchar(data[i]);
     }
@@ -129,7 +129,7 @@ namespace terminal
     y = 0;
     x = 0;
     cur_color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
-    buffer = (u16 *)(SCREEN_BUFFER_ADDR + KERNEL_VMA_BASE);
+    buffer = reinterpret_cast<u16 *>(SCREEN_BUFFER_ADDR + KERNEL_VMA_BASE);
     for (s16 y = 0; y < VGA_HEIGHT; y++) {
       clear_line(y);
     }
@@ -225,7 +225,7 @@ namespace terminal
 
           printf("0x%s", buf);
         } else if (c == 's') {
-          printf((char *) va_arg(ap, u64));
+          printf(reinterpret_cast<char *>(va_arg(ap, u64)));
         } 
       } else
         putchar(c);

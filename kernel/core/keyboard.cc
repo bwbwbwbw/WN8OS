@@ -205,10 +205,10 @@ namespace keyboard
     interrupt::interrupt_stack_frame_t *interrupt_stack_frame
     )
   {
-    unsigned char status = ioport::inb(0x64);
-    unsigned char scancode = ioport::inb(0x60);
+    auto status = ioport::inb(0x64);
+    auto scancode = ioport::inb(0x60);
     keycode_t code = scancode_to_keycode(scancode);
-    if (code != (keycode_t)-1) {
+    if (code != static_cast<keycode_t>(-1)) {
       if (key_buffer_len + 1 < KEY_BUFFER_SIZE) {
         key_buffer[++key_buffer_len] = code;
       }
@@ -245,7 +245,7 @@ namespace keyboard
       // 如果是可见字符，则显示出来
       terminal::putchar(ret);
     }
-    return (char)ret;
+    return static_cast<char>(ret);
   }
 
   void getline(char * buffer, size_t len)
